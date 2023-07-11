@@ -47,7 +47,7 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
 
    [Learn about Varnish integrations for popular frameworks and platforms](https://www.varnish-software.com/developers/tutorials/#integrations)
 
-   Store your VCL code in a file on your host system, we will mount it into the container in a later step.
+   Store your VCL code in a file on your _host system_, we will mount it into the container in a later step.
 
 3. Running the Varnish Docker container
 
@@ -98,27 +98,27 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
 
 4. Additional parameters
 
-   The Varnish Docker image is designed in such a way that extra varnishd runtime parameters can be added.
+   The Varnish Docker image is designed in such a way that [extra `varnishd` runtime parameters](http://varnish-cache.org/docs/6.0/reference/varnishd.html#options) can be added.
 
-   Any option that is added after the image, will be attached as a varnishd runtime parameter.
+   Any option that is added after the image, will be attached as a `varnishd` runtime parameter.
 
-   For example docker run varnish:stable -p default_ttl=3600 will assign a -p option to the varnishd program. This allows you to extend Varnish’s runtime parameters.
+   For example `docker run varnish:stable -p default_ttl=3600` will assign a `-p` option to the `varnishd` program. This allows you to extend Varnish’s runtime parameters.
 
-   -p default_ttl=3600 wil set the standard Time-To-Live of Varnish to an hour, whereas the standard value is 2 minutes.
+   `-p default_ttl=3600` wil set the standard Time-To-Live of Varnish to _an hour_, whereas the standard value is _2 minutes_.
 
    [More information about varnishd runtime parameters](http://varnish-cache.org/docs/6.0/reference/varnishd.html#options)
 
 5. Running commands
 
-   We can use docker exec to execute commands on our running Varnish container.
+   We can use `docker exec` to execute commands on our running Varnish container.
 
-   The following access gives you access to the Bash shell of the my-varnish-container container:
+   The following access gives you access to the Bash shell of the `my-varnish-container` container:
 
    ```
    docker exec -ti my-varnish-container bash
    ```
 
-   This allows you to execute commands like varnishreload, varnishadm, varnishlog, varnishncsa and various other commands on the system.
+   This allows you to execute commands like `varnishreload`, `varnishadm`, `varnishlog`, `varnishncsa` and various other commands on the system.
 
    It is also possible to access these commands directly without going through the Bash shell.
 
@@ -128,17 +128,17 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
    docker exec my-varnish-container varnishreload
    ```
 
-   The following command will interactively run the varnishlog -g request -q "ReqURl eq '/'" command:
+   The following command will interactively run the `varnishlog -g request -q "ReqURl eq '/'"` command:
 
    ```
    docker exec -ti my-varnish-container varnishlog -g request -q "ReqURl eq '/'"
    ```
 
-   This command will display Varnish Shared Memory Logs in real-time, group the output by request and filter requests for the homepage.
+   This command will display _Varnish Shared Memory Logs_ in real-time, group the output by request and filter requests for the homepage.
 
 6. Docker Compose
 
-   If you’re planning to orchestrate a multi-container setup using Docker Compose, here’s an example of a docker-compose.yml file that contains a Varnish configuration:
+   If you’re planning to orchestrate a multi-container setup using [Docker Compose](https://docs.docker.com/compose/), here’s an example of a `docker-compose.yml` file that contains a Varnish configuration:
 
    ```
    version: "3"
@@ -164,24 +164,24 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
          - "8080:80"
    ```
 
-   This docker-compose.yml file will spin up 2 containers:
+   This `docker-compose.yml` file will spin up 2 containers:
 
-   * A Varnish container named varnish
-   * An Apache container named httpd
+   * A Varnish container named `varnish`
+   * An Apache container named `httpd`
 
    The Varnish container
 
-   The Varnish container uses the varnish:stable image that runs Varnish Cache 6.0 LTS.
+   The Varnish container uses the `varnish:stable` image that runs _Varnish Cache 6.0 LTS_.
 
-   HTTP port 80 will be exposed to the host system and the /var/lib/varnish folder from the container will be mounted through tmpfs. This means the directory will be a separate RAM disk volume with execute permissions.
+   HTTP port `80` will be exposed to the host system and the `/var/lib/varnish` folder from the container will be mounted through `tmpfs`. This means the directory will be a separate RAM disk volume with execute permissions.
 
-   Through the VARNISH_SIZE environment variable, we’re extending the size of the cache to 2 GB.
+   Through the `VARNISH_SIZE` environment variable, we’re extending the size of the cache to 2 GB.
 
-   The command: "-p default_keep=300" statement allows us to attach extra parameters to the varnish program and override some runtime parameters. In this case we’re setting the value of the default_keep runtime parameter to 300 seconds.
+   The `command: "-p default_keep=300"` statement allows us to attach extra parameters to the varnish program and override some runtime parameters. In this case we’re setting the value of the `default_keep` runtime parameter to 300 seconds.
 
    The VCL file
 
-   The default.vcl file from the host system will be mounted into the Varnish container and will be available through /etc/varnish/default.vcl.
+   The `default.vcl` file from the host system will be mounted into the Varnish container and will be available through `/etc/varnish/default.vcl`.
 
    Here’s what the VCL file could look like:
 
@@ -194,30 +194,31 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
    }
    ```
 
-   The httpd hostname in the VCL backend refers to the Apache container where Varnish will proxy requests to.
+   The `httpd` hostname in the VCL backend refers to the Apache container where Varnish will proxy requests to.
 
-   The Varnish container depends on the Apache container. The depends_on syntax will ensure the Varnish container is created after the Apache container. Otherwise the httpd hostname would not be resolvable in VCL.
+   The Varnish container depends on the Apache container. The `depends_on` syntax will ensure the Varnish container is created after the Apache container. Otherwise the `httpd` hostname would not be resolvable in VCL.
 
    The Apache container
 
-   The Apache container itself is pretty basic: it uses the httpd:latest images.
+   The Apache container itself is pretty basic: it uses the `httpd:latest` images.
 
-   Its HTTP port is exposed to the host system as port 8080. Internally, port 80 is still used, as you can see in the VCL example above.
+   Its HTTP port is exposed to the host system as port `8080`. Internally, port `80` is still used, as you can see in the VCL example above.
 
    The Apache webserver acts as the origin and its contents will be cached by Varnish.
 
    Starting the containers
 
-   To set up our Varnish and Apache stack using Docker Compose, run the following command:
+   To set up our Varnish and Apache stack using _Docker Compose_, run the following command:
 
    ```
    docker compose up
    ```
 
-   This command will read the docker-compose.yml file in the current directory and start the containers based on the configuration.
+   This command will read the `docker-compose.yml` file in the current directory and start the containers based on the configuration.
+
    Access the containers
 
-   After the environment has been started, you can access Varnish through the http://localhost endpoint on your host system. If you want access the Apache webserver directly you can use the http://localhost:8080 endpoint.
+   After the environment has been started, you can access Varnish through the `http://localhost` endpoint on your host system. If you want access the Apache webserver directly you can use the `http://localhost:8080` endpoint.
 
    To access the bash shell of the Varnish container, simply run the following command:
 
@@ -225,7 +226,7 @@ Varnish can be run inside a Docker container and Varnish Software maintains offi
    docker exec -ti varnish bash
    ```
 
-   This will allow you to use tools like varnishadm, varnishstat and varnishlog.
+   This will allow you to use tools like `varnishadm`, `varnishstat` and `varnishlog`.
 
    Cleaning up
 
